@@ -31,7 +31,8 @@ export const hebrew = {
     profile: "פרופיל",
     settings: "הגדרות",
     employees: 'עובדים',
-    date: "תאריך"
+    date: "תאריך",
+    addRowBelow: "הוסף שורה מתחת",
     
     
 }

@@ -6,9 +6,11 @@ import { DATA_STORAGE_KEY, groupBy } from "../../shared/Utils";
 
 let timerRef: number;
 
-export function Table2() {
+export function Table2({ usersChanged }: { usersChanged?: number }) {
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [date, setDate] = useState(localStorage.getItem('shift-date') || new Date().toISOString().split("T")[0]);
+    const [date, setDate] = useState(
+        localStorage.getItem("shift-date") || new Date().toISOString().split("T")[0]
+    );
     const [table, setTable] = useState<TableType>({
         rows: Array.from({ length: 1 }).map(() => {
             return emptyRow();
@@ -24,6 +26,23 @@ export function Table2() {
             setTable(data);
         }
     }, []);
+
+    useEffect(() => {
+        setTable((table) => {
+            return {
+                ...table,
+                rows: table.rows.map((row) => {
+                    return {
+                        ...row,
+                        cells: row.cells.map((cell) => {
+                            cell.color = colorMap.get(cell.value) || "";
+                            return cell;
+                        }),
+                    };
+                }),
+            };
+        });
+    }, [usersChanged]);
 
     function calculateTotalShifts() {
         table.rows.forEach((row) => {
@@ -53,8 +72,12 @@ export function Table2() {
                             </b>
                             {value.map((x) => {
                                 return (
-                                    <span>
-                                        ({x.rowName} {x.name}) {", "}
+                                    <span
+                                        style={{
+                                            marginInlineStart: "0.5rem",
+                                        }}
+                                    >
+                                        ({x.rowName} {x.name})
                                     </span>
                                 );
                             })}
@@ -65,24 +88,43 @@ export function Table2() {
         );
     }
 
-    function addNewRow() {
-        setTable((table) => {
-            return {
-                ...table,
-                rows: [...table.rows, emptyRow()],
-            };
-        });
-        localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(table));
+    function addNewRow(index?: number) {
+        let _table: TableType | undefined;
+        if (index != undefined) {
+            setTable((table) => {
+                _table = {
+                    ...table,
+                    rows: [...table.rows.slice(0, index), emptyRow(), ...table.rows.slice(index)],
+                };
+                return _table;
+            });
+        } else {
+            setTable((table) => {
+                _table = {
+                    ...table,
+                    rows: [...table.rows, emptyRow()],
+                };
+                return _table;
+            });
+        }
+
+        setTimeout(() => {
+            localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(_table));
+        }, 1000);
     }
 
     function removeRow(rowId: string): void {
+        let _table: TableType | undefined;
         setTable((table) => {
-            return {
+            _table = {
                 ...table,
                 rows: table.rows.filter((row) => row.id !== rowId),
             };
+            return _table;
         });
-        localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(table));
+        setTimeout(() => {
+            localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(_table));
+        }, 1000);
     }
 
     function inputChange(value: string, cellId: string, rowId: string, index?: number) {
@@ -108,30 +150,97 @@ export function Table2() {
         clearTimeout(timerRef);
         timerRef = setTimeout(() => {
             localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(table));
-            calculateTotalShifts();
         }, 1000);
+    }
+
+    function clearTable() {
+        setTable((table) => {
+            document.querySelector<HTMLDialogElement>("#clearTableDialog")?.close();
+            return {
+                ...table,
+                rows: table.rows.map((row) => {
+                    return {
+                        ...row,
+                        cells: row.cells.map((cell, index) => {
+                            if (index == 0) return cell;
+                            return {
+                                ...cell,
+                                value: "",
+                                color: "",
+                            };
+                        }),
+                    };
+                }),
+            };
+        });
+    }
+
+    function clearTableDialog() {
+        return (
+            <dialog
+                id="clearTableDialog"
+                style={{
+                    width: "30rem",
+                }}
+            >
+                <h1>אתה בטוח שאתה רוצה לרוקן את הטבלה? </h1>
+                <h2>כל העובדים בטבלה ימחקו</h2>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <button
+                        onClick={() => {
+                            document.querySelector<HTMLDialogElement>("#clearTableDialog")?.close();
+                        }}
+                    >
+                        לא, ביטול
+                    </button>
+                    <button
+                        style={{
+                            backgroundColor: "red",
+                        }}
+                        onClick={clearTable}
+                    >
+                        כן, לרוקן את הטבלה
+                    </button>
+                </div>
+            </dialog>
+        );
     }
 
     return (
         <>
+            {clearTableDialog()}
             <datalist id="names">
                 {nameList.map((name) => {
                     return <option value={name} key={name}></option>;
                 })}
             </datalist>
-            <button onClick={() => setEditMode(true)}>{hebrew.edit}</button>
-            <button onClick={() => setEditMode(false)}>{hebrew.save}</button>
-
+            <button
+                onClick={() => {
+                    document.querySelector<HTMLDialogElement>("#clearTableDialog")?.showModal();
+                }}
+            >
+                {hebrew.clearAll}
+            </button>
+            <button onClick={() => setEditMode(false)}>
+                <i className="fa-solid fa-floppy-disk"></i> {hebrew.save}
+            </button>{" "}
+            <button onClick={() => setEditMode(true)}>
+                <i className="fa-solid fa-pencil"></i> {hebrew.edit}
+            </button>
             <br />
             <br />
             <br />
-
             <div
                 style={{
                     display: "flex",
                     gap: "1rem",
                     alignItems: "center",
-                    marginInlineStart: "9rem",
+                    marginInlineStart: "2rem",
                 }}
             >
                 <h2>
@@ -147,11 +256,18 @@ export function Table2() {
                     />
                 )}
             </div>
-
             <table>
                 <thead>
                     <tr>
-                        <th></th>
+                        <th>
+                            {editMode && (
+                                <>
+                                    <button onClick={() => addNewRow(0)}>
+                                        <i className="fa fa-circle-plus"></i>
+                                    </button>
+                                </>
+                            )}
+                        </th>
                         <td>{hebrew.shift}</td>
                         <th>{hebrew.sunday}</th>
                         <th>{hebrew.monday}</th>
@@ -163,7 +279,10 @@ export function Table2() {
                     </tr>
                 </thead>
                 <tbody>
-                    {table.rows.map((row) => {
+                    {table.rows.length == 0 && editMode && (
+                        <button onClick={() => addNewRow()}> {hebrew.add}</button>
+                    )}
+                    {table.rows.map((row, index) => {
                         return (
                             <tr key={row.id}>
                                 <td
@@ -171,33 +290,42 @@ export function Table2() {
                                         minWidth: "fit-content",
                                     }}
                                 >
-                                    <button
-                                        onClick={() => removeRow(row.id)}
-                                        style={{
-                                            backgroundColor: "red",
-                                            marginInlineEnd: "3rem",
-                                        }}
-                                    >
-                                        <i className="fa fa-trash"></i>
-                                    </button>
+                                    {editMode && (
+                                        <>
+                                            <button
+                                                onClick={() => removeRow(row.id)}
+                                                style={{
+                                                    backgroundColor: "red",
+                                                }}
+                                            >
+                                                <i className="fa fa-trash"></i>
+                                            </button>
+                                            <button onClick={() => addNewRow(index + 1)}>
+                                                <i className="fa fa-circle-plus"></i>
+                                            </button>
+                                        </>
+                                    )}
                                 </td>
                                 {row.cells.map((cell, index) => {
                                     return (
                                         <td key={cell.id} style={{ backgroundColor: cell.color }}>
                                             {cell.value}
                                             {editMode && (
-                                                <input
-                                                    list="names"
-                                                    value={cell.value}
-                                                    onChange={(e) => {
-                                                        inputChange(
-                                                            e.target.value,
-                                                            cell.id,
-                                                            row.id,
-                                                            index
-                                                        );
-                                                    }}
-                                                />
+                                                <>
+                                                    <br />
+                                                    <input
+                                                        list="names"
+                                                        value={cell.value}
+                                                        onChange={(e) => {
+                                                            inputChange(
+                                                                e.target.value,
+                                                                cell.id,
+                                                                row.id,
+                                                                index
+                                                            );
+                                                        }}
+                                                    />
+                                                </>
                                             )}
                                         </td>
                                     );
@@ -208,8 +336,6 @@ export function Table2() {
                 </tbody>
             </table>
             <br />
-            <button onClick={() => addNewRow()}>{hebrew.add} +</button>
-
             <div>
                 <h2>{hebrew.total}</h2>
                 {calculateTotalShifts()}

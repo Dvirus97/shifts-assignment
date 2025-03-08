@@ -71,16 +71,18 @@ button:focus-visible {
 thead {
     td,
     th:not(:first-child) {
-        background-color: #d23e39;
-        color: #f1b749;
+        /* background-color: #d23e39;
+        color: #f1b749; */
     }
 }
 
-tbody {
-    td:nth-child(2) {
-        background-color: #d23e39;
-        color: #f1b749;
-    }
+td,
+th {
+    border: 1px solid #d1d1d1;
+}
+td:nth-child(1),
+th:nth-child(1) {
+    border: none;
 }
 
 td {
@@ -94,6 +96,5 @@ td {
 }
 input {
     text-align: center;
-    width: 100px;
+    width: 120px;
 }
-
