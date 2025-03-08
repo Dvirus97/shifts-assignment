@@ -44,7 +44,7 @@ export function Users({ usersChanged }: { usersChanged?: () => void }) {
     }
 
     function inputKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-        if (event.code == "Enter") {
+        if (event.key == "Enter") {
             addUser();
         }
     }
@@ -112,7 +112,7 @@ export function Users({ usersChanged }: { usersChanged?: () => void }) {
                 onChange={(e) => {
                     setUser(e.target.value);
                 }}
-                onKeyUp={inputKeyDown}
+                onKeyDown={inputKeyDown}
             />
             <br />
             <br />

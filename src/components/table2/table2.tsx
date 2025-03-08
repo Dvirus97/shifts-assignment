@@ -212,20 +212,40 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
         );
     }
 
-    function screenShot() {
+    function generateCanvas() {
         const element = document.querySelector<HTMLElement>(".table-wrapper");
-
-        console.log(element)
         if (element) {
-            html2canvas(element, {backgroundColor:'#242424'}).then((canvas) => {
-                // document.body.appendChild(canvas); // Preview the screenshot
-                const imgData = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = imgData;
-                link.download = `משמרות-${date}.png`;
-                link.click();
+            return html2canvas(element, {
+                backgroundColor: "#242424",
+                scrollX: 0,
+                windowWidth: element.scrollWidth + 250,
             });
         }
+    }
+
+    function screenShot() {
+        generateCanvas()?.then((canvas) => {
+            // document.body.appendChild(canvas); // Preview the screenshot
+            const imgData = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = imgData;
+            link.download = `משמרות-${date}.png`;
+            link.click();
+        });
+    }
+    function shareImage() {
+        generateCanvas()?.then((canvas) => {
+            canvas.toBlob((blob) => {
+                const file = new File([blob!], `משמרות-${date}.png`, { type: "image/png" });
+                if (navigator.share) {
+                    navigator.share({
+                        title: `משמרות-${date}.png`,
+                        text: `משמרות-${date}.png`,
+                        files: [file],
+                    });
+                }
+            });
+        });
     }
 
     return (
@@ -250,7 +270,10 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                 <i className="fa-solid fa-pencil"></i> {hebrew.edit}
             </button>
             <button onClick={screenShot}>
-            <i className="fa-solid fa-file-arrow-down"></i> הורד כתמונה
+                <i className="fa-solid fa-file-arrow-down"></i> הורד כתמונה
+            </button>
+            <button onClick={shareImage}>
+                <i className="fa-solid fa-share-from-square"></i> שיתוף משמרות
             </button>
             <br />
             <br />
@@ -262,22 +285,19 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                     alignItems: "center",
                     marginInlineStart: "2rem",
                 }}
-            >
-
-               
-            </div>
+            ></div>
             <div className="table-wrapper">
                 <h2>
                     {hebrew.date}: {date}
                     {editMode && (
-                    <input
-                        value={date}
-                        onChange={(e) => {
-                            setDate(e.target.value);
-                            localStorage.setItem("shift-date", e.target.value);
-                        }}
-                    />
-                )}
+                        <input
+                            value={date}
+                            onChange={(e) => {
+                                setDate(e.target.value);
+                                localStorage.setItem("shift-date", e.target.value);
+                            }}
+                        />
+                    )}
                 </h2>
                 <table>
                     <thead>
