@@ -3,6 +3,7 @@ import { colorMap } from "../../shared/colors";
 import { hebrew } from "../../shared/translate";
 import { emptyRow, TableType } from "../../shared/types/tableType";
 import { DATA_STORAGE_KEY, groupBy } from "../../shared/Utils";
+import html2canvas from "html2canvas";
 
 let timerRef: number;
 
@@ -211,6 +212,22 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
         );
     }
 
+    function screenShot() {
+        const element = document.querySelector<HTMLElement>(".table-wrapper");
+
+        console.log(element)
+        if (element) {
+            html2canvas(element, {backgroundColor:'#242424'}).then((canvas) => {
+                // document.body.appendChild(canvas); // Preview the screenshot
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = imgData;
+                link.download = `משמרות-${date}.png`;
+                link.click();
+            });
+        }
+    }
+
     return (
         <>
             {clearTableDialog()}
@@ -232,6 +249,9 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
             <button onClick={() => setEditMode(true)}>
                 <i className="fa-solid fa-pencil"></i> {hebrew.edit}
             </button>
+            <button onClick={screenShot}>
+            <i className="fa-solid fa-file-arrow-down"></i> הורד כתמונה
+            </button>
             <br />
             <br />
             <br />
@@ -243,10 +263,13 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                     marginInlineStart: "2rem",
                 }}
             >
+
+               
+            </div>
+            <div className="table-wrapper">
                 <h2>
                     {hebrew.date}: {date}
-                </h2>
-                {editMode && (
+                    {editMode && (
                     <input
                         value={date}
                         onChange={(e) => {
@@ -255,8 +278,7 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                         }}
                     />
                 )}
-            </div>
-            <div className="table-wrapper">
+                </h2>
                 <table>
                     <thead>
                         <tr>

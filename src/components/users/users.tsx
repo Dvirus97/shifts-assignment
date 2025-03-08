@@ -112,7 +112,7 @@ export function Users({ usersChanged }: { usersChanged?: () => void }) {
                 onChange={(e) => {
                     setUser(e.target.value);
                 }}
-                onKeyDown={inputKeyDown}
+                onKeyUp={inputKeyDown}
             />
             <br />
             <br />

@@ -70,6 +70,11 @@ button:focus-visible {
 /* #### */
 /* #### */
 
+canvas{
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+}
+
 thead {
     td,
     th:not(:first-child) {
@@ -102,6 +107,7 @@ input {
 }
 
 .table-wrapper {
-    width: 100%;
+    max-width: 100%;
+    width: fit-content;
     overflow-x: auto;
 }
