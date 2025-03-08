@@ -42,6 +42,8 @@ button {
     background-color: #1a1a1a;
     cursor: pointer;
     transition: border-color 0.25s;
+    min-width: 48px;
+    min-height: 48px;
 }
 button:hover {
     border-color: #646cff;
@@ -97,4 +99,9 @@ td {
 input {
     text-align: center;
     width: 120px;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
 }

@@ -256,85 +256,90 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                     />
                 )}
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>
-                            {editMode && (
-                                <>
-                                    <button onClick={() => addNewRow(0)}>
-                                        <i className="fa fa-circle-plus"></i>
-                                    </button>
-                                </>
-                            )}
-                        </th>
-                        <td>{hebrew.shift}</td>
-                        <th>{hebrew.sunday}</th>
-                        <th>{hebrew.monday}</th>
-                        <th>{hebrew.tuesday}</th>
-                        <th>{hebrew.wednesday}</th>
-                        <th>{hebrew.thursday}</th>
-                        <th>{hebrew.friday}</th>
-                        <th>{hebrew.saturday}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {table.rows.length == 0 && editMode && (
-                        <button onClick={() => addNewRow()}> {hebrew.add}</button>
-                    )}
-                    {table.rows.map((row, index) => {
-                        return (
-                            <tr key={row.id}>
-                                <td
-                                    style={{
-                                        minWidth: "fit-content",
-                                    }}
-                                >
-                                    {editMode && (
-                                        <>
-                                            <button
-                                                onClick={() => removeRow(row.id)}
-                                                style={{
-                                                    backgroundColor: "red",
-                                                }}
+            <div className="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                {editMode && (
+                                    <>
+                                        <button onClick={() => addNewRow(0)}>
+                                            <i className="fa fa-circle-plus"></i>
+                                        </button>
+                                    </>
+                                )}
+                            </th>
+                            <td>{hebrew.shift}</td>
+                            <th>{hebrew.sunday}</th>
+                            <th>{hebrew.monday}</th>
+                            <th>{hebrew.tuesday}</th>
+                            <th>{hebrew.wednesday}</th>
+                            <th>{hebrew.thursday}</th>
+                            <th>{hebrew.friday}</th>
+                            <th>{hebrew.saturday}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table.rows.length == 0 && editMode && (
+                            <button onClick={() => addNewRow()}> {hebrew.add}</button>
+                        )}
+                        {table.rows.map((row, index) => {
+                            return (
+                                <tr key={row.id}>
+                                    <td
+                                        style={{
+                                            minWidth: "fit-content",
+                                        }}
+                                    >
+                                        {editMode && (
+                                            <>
+                                                <button
+                                                    onClick={() => removeRow(row.id)}
+                                                    style={{
+                                                        backgroundColor: "red",
+                                                    }}
+                                                >
+                                                    <i className="fa fa-trash"></i>
+                                                </button>
+                                                <button onClick={() => addNewRow(index + 1)}>
+                                                    <i className="fa fa-circle-plus"></i>
+                                                </button>
+                                            </>
+                                        )}
+                                    </td>
+                                    {row.cells.map((cell, index) => {
+                                        return (
+                                            <td
+                                                key={cell.id}
+                                                style={{ backgroundColor: cell.color }}
                                             >
-                                                <i className="fa fa-trash"></i>
-                                            </button>
-                                            <button onClick={() => addNewRow(index + 1)}>
-                                                <i className="fa fa-circle-plus"></i>
-                                            </button>
-                                        </>
-                                    )}
-                                </td>
-                                {row.cells.map((cell, index) => {
-                                    return (
-                                        <td key={cell.id} style={{ backgroundColor: cell.color }}>
-                                            {cell.value}
-                                            {editMode && (
-                                                <>
-                                                    <br />
-                                                    <input
-                                                        list="names"
-                                                        value={cell.value}
-                                                        onChange={(e) => {
-                                                            inputChange(
-                                                                e.target.value,
-                                                                cell.id,
-                                                                row.id,
-                                                                index
-                                                            );
-                                                        }}
-                                                    />
-                                                </>
-                                            )}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                                                {cell.value}
+                                                {editMode && (
+                                                    <>
+                                                        <br />
+                                                        <input
+                                                            list="names"
+                                                            value={cell.value}
+                                                            onChange={(e) => {
+                                                                inputChange(
+                                                                    e.target.value,
+                                                                    cell.id,
+                                                                    row.id,
+                                                                    index
+                                                                );
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
             <br />
             <div>
                 <h2>{hebrew.total}</h2>
