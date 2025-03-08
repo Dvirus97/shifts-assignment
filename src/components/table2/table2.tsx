@@ -213,14 +213,20 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
     }
 
     function generateCanvas() {
-        const element = document.querySelector<HTMLElement>(".table-wrapper");
-        if (element) {
-            return html2canvas(element, {
-                backgroundColor: "#242424",
-                scrollX: 0,
-                windowWidth: element.scrollWidth + 250,
-            });
-        }
+        setEditMode(false);
+        return new Promise<HTMLCanvasElement>((resolve) => {
+            setTimeout(() => {
+                const element = document.querySelector<HTMLElement>(".table-wrapper");
+                if (element) {
+                    const canvas = html2canvas(element, {
+                        backgroundColor: "#242424",
+                        scrollX: 0,
+                        windowWidth: element.scrollWidth + 250,
+                    });
+                    resolve(canvas);
+                }
+            }, 200);
+        });
     }
 
     function screenShot() {
@@ -291,6 +297,7 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                     {hebrew.date}: {date}
                     {editMode && (
                         <input
+                        type="date"
                             value={date}
                             onChange={(e) => {
                                 setDate(e.target.value);
@@ -304,11 +311,13 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                         <tr>
                             <th>
                                 {editMode && (
-                                    <>
+                                    <div style={{
+                                        textAlign:"end"
+                                    }}>
                                         <button onClick={() => addNewRow(0)}>
                                             <i className="fa fa-circle-plus"></i>
                                         </button>
-                                    </>
+                                    </div>
                                 )}
                             </th>
                             <td>{hebrew.shift}</td>
@@ -328,13 +337,16 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                         {table.rows.map((row, index) => {
                             return (
                                 <tr key={row.id}>
-                                    <td
-                                        style={{
-                                            minWidth: "fit-content",
-                                        }}
-                                    >
+                                    <td style={{
+                                        minWidth:"fit-content"
+                                    }}>
                                         {editMode && (
-                                            <>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    gap: "0.25rem",
+                                                }}
+                                            >
                                                 <button
                                                     onClick={() => removeRow(row.id)}
                                                     style={{
@@ -346,7 +358,7 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                                                 <button onClick={() => addNewRow(index + 1)}>
                                                     <i className="fa fa-circle-plus"></i>
                                                 </button>
-                                            </>
+                                            </div>
                                         )}
                                     </td>
                                     {row.cells.map((cell, index) => {
