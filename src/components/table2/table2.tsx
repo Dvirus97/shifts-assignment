@@ -372,7 +372,7 @@ export function Table2({ usersChanged }: { usersChanged?: number }) {
                                                     <>
                                                         <br />
                                                         <input
-                                                            list="names"
+                                                            list={cell.name == hebrew.shift ? '' : 'names'}
                                                             value={cell.value}
                                                             onChange={(e) => {
                                                                 inputChange(
